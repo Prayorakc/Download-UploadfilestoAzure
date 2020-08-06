@@ -1,0 +1,74 @@
+﻿# Input Parameters  
+$connection_string = 'enter your connection string from azure'
+$storage_account = New-AzureStorageContext -ConnectionString $connection_string  
+$blobs = Get-AzureStorageBlob -Container "<Enter Container Name>" -Context $storage_account  | sort @{expression="LastModified";Descending=$true}
+
+# Most Recent Blob in the Container
+$latestBlob = $blobs[0]
+
+# Download the blob
+$blobContent = Get-AzureStorageBlobContent -Container "<Enter Container Name >" -Blob $latestBlob.Name -Destination "C:\<Enter your local file path> " `
+    -Context $storage_account
+$destination_path = 'C:\<Enter your local file path to the folder you want to save your file>'  
+New-Item -ItemType Directory -Force -Path $destination_path `
+
+#Manipulate the file
+
+$XL = New-Object -ComObject Excel.Application
+
+$XL.visible = $true
+
+#Opening an excel sheet
+
+$workbook = $XL.workbooks.open("Enter your csv file name in here>note, you can customize each file by adding Get-Date format to get the most recent dated files")
+
+#Accessing a particular sheet
+
+$worksheet1 = $workbook.worksheets.item(1)
+
+$worksheet1.Activate()
+
+#You can manipulate the columns and rows here before saving
+
+$worksheet1.SaveAs("Enter any name you want to save your csv file name in here>note, you can customize each file by adding Get-Date format to add the most recent dated files")
+
+$workbook.Save()
+$workbook.Close()
+$XL.Quit()
+
+Write-output "File Saved to the documents" `
+
+#Remove the latest file from azure
+
+$StorageAccountName = "Enter here"
+$StorageAccountKey = "Enter here"
+$ctx = New-AzureStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $StorageAccountKey
+$connection_string = 'enter your connection string from azure'
+$storage_account = New-AzureStorageContext -ConnectionString $connection_string  
+$BlobName = Get-AzureStorageBlob -Container "Enter your container name here"  -Context $storage_account  | sort @{expression="LastModified";Descending=$true}
+
+$latestBlob = " C:\<Enter your local file path> " #eg C:\Folder
+
+Remove-AzureStorageBlob -Blob $latestBlob -Container "<Enter Container Name >" -Context $ctx `
+
+Write-Output "Latest File deleted from the container" `
+
+#Uploading to Azure portal
+
+$StorageAccountName = Enter here"
+$StorageAccountKey = "Enter here"
+$ctx = New-AzureStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $StorageAccountKey
+
+$ContainerName = ""<Enter Container Name "
+$localFileDirectory = "C:\<Enter your folder path here>\" #(eg. “C:\folder\”)
+
+
+Get-ChildItem -File -Recurse C:\<Enter your folder path here>\ | Set-AzureStorageBlobContent -Container $ContainerName -context $ctx
+
+Write-output "File Uploaded to Azure" `
+
+#Remove the file from the folder
+
+Remove-Item C:\enter your folder/file name\*.*
+
+Write-output "File Removed for next upload"
